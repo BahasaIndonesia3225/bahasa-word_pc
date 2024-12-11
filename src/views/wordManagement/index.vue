@@ -83,6 +83,7 @@
     <el-dialog
       :title="wordInfoForm.id ? '编辑单词' : '新增单词'"
       :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
       width="45%">
       <el-form
         ref="form"
@@ -94,13 +95,10 @@
             style="width: 100%"
             v-model="wordInfoForm.remark">
           </el-input>
-          <div v-if="wordInfoForm.remark">
-            {{ setAudioUrl(wordInfoForm.remark) }}
-            <audio
-              controls
-              v-if="wordInfoForm.remark"
-              :src="setAudioUrl(wordInfoForm.remark)">
-            </audio>
+          <div class="wordAudioCanPlay" v-if="wordInfoForm.remark">
+            <el-tag type="info" size="mini">{{ setAudioUrl(wordInfoForm.remark) }}</el-tag>
+            <can-audio style="margin-right: 10px;" :src="setAudioUrl(wordInfoForm.remark)"/>
+            <el-tag size="mini" @click="copyToClipboard(setAudioUrl(wordInfoForm.remark))">复制</el-tag>
           </div>
           <div class="wordDescription">
             <div>单词地址规范:</div>
@@ -158,12 +156,13 @@
   </div>
 </template>
 <script>
+import CanAudio from '@/views/wordManagement/canAudio.vue'
 import PlayAudio from '@/views/wordManagement/playAudio.vue'
 import {getWordManagement, newWordManagement, deleteWordManagement, checkWordManagement, editWordManagement } from "@/api/wordManagement"
 import mixin from '@/views/mixin'
 import { getCategoryManagement } from '@/api/categoryManagement'
 export default {
-  components: {PlayAudio},
+  components: {CanAudio, PlayAudio},
   mixins: [mixin],
   data() {
     return {
@@ -181,11 +180,11 @@ export default {
       wordInfoForm: {
         id: "",
         remark: "",          //单词
+        chinese: "",         //中文含义
         sentence: "",        //例句
-        soundRecording: "",  //录音地址(根据单词生成)
         type: "",            //断句
         categoryId: [],      //类别id
-        chinese: "",         //中文含义
+        soundRecording: "",  //录音地址(根据单词生成)
         //暂时用不到的字段
         pic: "",             //单词图片
         phoneticSymbol: "",  //音标
@@ -262,11 +261,12 @@ export default {
       this.initTable();
     },
     handleDeleteItem(data) {
-      this.$confirm('确定删除该单词?', '提示', {
+      this.$prompt('确定删除该单词？请输入安全码校验。', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
+        inputPattern: /^HATI-HATI$/,
+        inputErrorMessage: '请输入正确格式的安全校验码！'
+      }).then(({ value }) => {
         const { id } = data;
         deleteWordManagement(id).then(res => {
           this.initTable();
@@ -285,7 +285,19 @@ export default {
     handleNewItem() {
       this.dialogVisible = true;
       this.$refs["form"] && this.$refs["form"].resetFields();
-      this.wordInfoForm.id = "";
+      this.wordInfoForm = {
+        id: "",
+        remark: "",          //单词
+        chinese: "",         //中文含义
+        sentence: "",        //例句
+        type: "",            //断句
+        categoryId: [],      //类别id
+        soundRecording: "",  //录音地址(根据单词生成)
+        //暂时用不到的字段
+        pic: "",             //单词图片
+        phoneticSymbol: "",  //音标
+        content: "",         //备注
+      }
     },
     handleEditItem(data) {
       const { id } = data;
@@ -333,12 +345,32 @@ export default {
         }
       });
     },
+    copyToClipboard(text) {
+      const input = document.createElement('input');
+      input.value = text; // 设置要复制的文本
+      document.body.appendChild(input);
+      input.select(); // 选中文本
+      document.execCommand('copy'); // 执行复制操作
+      document.body.removeChild(input); // 移除临时的输入框
+      this.$message({
+        type: 'success',
+        message: '复制成功!'
+      });
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
+div.wordAudioCanPlay {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  >.el-tag {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+}
 div.wordDescription {
-  margin-top: 10px;
   div {
     line-height: 24px;
     color: #666666;

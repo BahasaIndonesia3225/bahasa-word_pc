@@ -46,6 +46,7 @@
     <el-dialog
       :title="categoryInfoForm.id ? '编辑类型' : '新增类型'"
       :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
       width="40%">
       <el-form
         ref="form"
@@ -89,6 +90,7 @@
 <script>
 import { getCategoryManagement, newCategoryManagement, deleteCategoryManagement, checkCategoryManagement, editCategoryManagement } from "@/api/categoryManagement"
 import mixin from '@/views/mixin'
+import {deleteUserManagement} from "@/api/userManagement";
 export default {
   mixins: [mixin],
   data() {
@@ -142,11 +144,12 @@ export default {
       this.initTable();
     },
     handleDeleteItem(data) {
-      this.$confirm('确定删除该类型?', '提示', {
+      this.$prompt('确定删除该类型？请输入安全码校验。', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
+        inputPattern: /^HATI-HATI$/,
+        inputErrorMessage: '请输入正确格式的安全校验码！'
+      }).then(({ value }) => {
         const { id } = data;
         deleteCategoryManagement(id).then(res => {
           this.initTable();

@@ -57,6 +57,7 @@
     <el-dialog
       :title="userInfoForm.userId ? '编辑用户' : '新增用户'"
       :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
       width="500px">
       <el-form
         ref="form"
@@ -85,6 +86,7 @@
         <el-form-item label="用户密码" prop="password">
           <el-input
             style="width: 100%"
+            :disabled="!!userInfoForm.userId"
             v-model.trim="userInfoForm.password">
           </el-input>
         </el-form-item>
@@ -135,7 +137,7 @@ export default {
         ],
         userName: [
           { required: true, message: '请输入登陆账号', trigger: 'blur' },
-          { validator: validateUserName, trigger: 'blur' }
+          // { validator: validateUserName, trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入登陆密码', trigger: 'blur' },
@@ -172,7 +174,12 @@ export default {
     handleNewItem() {
       this.dialogVisible = true;
       this.$refs["form"] && this.$refs["form"].resetFields();
-      this.userInfoForm.userId = "";
+      this.userInfoForm = {
+        userId: "",
+        userType: "",
+        userName: "",
+        password: "",
+      }
     },
     handleEditItem(data) {
       const { userId } = data;
@@ -216,11 +223,12 @@ export default {
       });
     },
     handleDeleteItem(data) {
-      this.$confirm('确定删除该用户?', '提示', {
+      this.$prompt('确定删除该用户？请输入安全码校验。', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
+        inputPattern: /^HATI-HATI$/,
+        inputErrorMessage: '请输入正确格式的安全校验码！'
+      }).then(({ value }) => {
         const { userId } = data;
         deleteUserManagement(userId).then(res => {
           this.initTable();
