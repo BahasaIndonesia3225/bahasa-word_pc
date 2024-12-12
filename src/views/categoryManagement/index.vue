@@ -16,8 +16,16 @@
       stripe
       height="100%"
       size="mini"
+      border
+      row-key="id"
+      ref="listTable"
       :data="tableData"
       style="width: 100%">
+      <el-table-column label="" width="80" align="center">
+        <template slot-scope="{ row }">
+          <i class="el-icon-rank allowDrag" style="cursor:pointer"></i>
+        </template>
+      </el-table-column>
       <el-table-column prop="name" label="类型名称"></el-table-column>
       <el-table-column prop="sort" label="排序"></el-table-column>
       <el-table-column label="权限">
@@ -25,6 +33,7 @@
           <span>{{ authorityToName(scope.row.authority) }}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="total" label="数量"></el-table-column>
       <el-table-column width="140" label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="handleEditItem(scope.row)">编辑</el-button>
@@ -47,7 +56,7 @@
       :title="categoryInfoForm.id ? '编辑类型' : '新增类型'"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
-      width="40%">
+      width="600px">
       <el-form
         ref="form"
         :model="categoryInfoForm"
@@ -88,9 +97,9 @@
   </div>
 </template>
 <script>
+import Sortable from 'sortablejs'
 import { getCategoryManagement, newCategoryManagement, deleteCategoryManagement, checkCategoryManagement, editCategoryManagement } from "@/api/categoryManagement"
 import mixin from '@/views/mixin'
-import {deleteUserManagement} from "@/api/userManagement";
 export default {
   mixins: [mixin],
   data() {
@@ -120,7 +129,7 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     this.initTable();
   },
   methods: {
@@ -129,7 +138,22 @@ export default {
         const { total, rows } = res;
         this.tableData = rows;
         this.total = total;
+        this.rowDrop();
       })
+    },
+    //行拖拽,排序方法
+    rowDrop() {
+      const el = this.$refs.listTable.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
+      this.sortable = Sortable.create(el, {
+        animation: 150,
+        ghostClass: "ghostClass",
+        handle: ".allowDrag",//设置操作区域
+        onEnd: evt => {
+          const { oldIndex, newIndex } = evt;
+          const targetRow = this.tableData.splice(evt.oldIndex, 1)[0];
+          this.tableData.splice(evt.newIndex, 0, targetRow);
+        }
+      });
     },
     handleSearch() {
       this.initTable();
@@ -246,6 +270,9 @@ div.categoryManagement {
         margin-left: 14px;
       }
     }
+  }
+  .allowDrag {
+    font-size: 20px;
   }
 }
 </style>

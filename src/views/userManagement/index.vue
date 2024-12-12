@@ -31,7 +31,14 @@
       :data="tableData"
       style="width: 100%">
       <el-table-column prop="userName" label="用户账号"></el-table-column>
-      <el-table-column label="用户类型">
+      <el-table-column prop="createTime" label="创建日期"></el-table-column>
+      <el-table-column prop="loginIp" label="最近登录IP"></el-table-column>
+      <el-table-column prop="loginDate" label="最近登录时间">
+        <template slot-scope="scope">
+          <span>{{setLoginDate(scope.row.loginDate)}}</span>
+        </template>
+      </el-table-column>
+            <el-table-column label="用户类型">
         <template slot-scope="scope">
           <span>{{setUserName(scope.row.userType)}}</span>
         </template>
@@ -100,6 +107,7 @@
 </template>
 <script>
 import { getUserManagement, newUserManagement, deleteUserManagement, checkUserManagement, editUserManagement } from "@/api/userManagement";
+import moment from 'moment'
 import mixin from '@/views/mixin'
 export default {
   mixins: [mixin],
@@ -151,6 +159,12 @@ export default {
   methods: {
     setUserName(value) {
       return this.userTypeOption.filter(item => item.value === value)[0].label
+    },
+    setLoginDate(value) {
+      if(value){
+        return moment(value).format('YYYY-MM-DD HH:mm:ss');
+      }
+      return "-"
     },
     initTable() {
       getUserManagement(this.searchParams).then(res => {
