@@ -45,7 +45,7 @@
         prop="chinese"
         label="中文含义">
       </el-table-column>
-      <el-table-column label="类别">
+      <el-table-column width="250" label="类别">
         <template slot-scope="scope">
           <div v-for="item in setCategoryName(scope.row.categoryId)">
             <el-tag
@@ -56,8 +56,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="sentence" label="用法解释"></el-table-column>
-      <el-table-column label="播放">
+      <el-table-column prop="sentence" label="用法解释">
+        <template slot-scope="scope">
+          <div v-html="setSentence(scope.row.sentence)"></div>
+        </template>
+      </el-table-column>
+      <el-table-column width="80" label="能否播放">
         <template slot-scope="scope">
           <play-audio :key="scope.row.id" :src="scope.row.soundRecording"/>
         </template>
@@ -158,9 +162,16 @@
 <script>
 import CanAudio from '@/views/wordManagement/canAudio.vue'
 import PlayAudio from '@/views/wordManagement/playAudio.vue'
-import {getWordManagement, newWordManagement, deleteWordManagement, checkWordManagement, editWordManagement } from "@/api/wordManagement"
+import {
+  checkWordManagement,
+  deleteWordManagement,
+  editWordManagement,
+  getWordManagement,
+  newWordManagement
+} from "@/api/wordManagement"
 import mixin from '@/views/mixin'
-import { getCategoryManagement } from '@/api/categoryManagement'
+import {getCategoryManagement} from '@/api/categoryManagement'
+
 export default {
   components: {CanAudio, PlayAudio},
   mixins: [mixin],
@@ -211,6 +222,10 @@ export default {
     this.getCategoryOption()
   },
   methods: {
+    setSentence(txt) {
+      const txt1 = txt.replace(/(【例句\d*】)/g, "<br>$1");
+      return txt1.replace(/(【.*?】)/g, '<span class="highlight">$1</span>')
+    },
     setAudioUrl(name) {
       // suami_istri.mp3
       if (name.indexOf(" ") !== -1) {
@@ -361,6 +376,12 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+::v-deep {
+  .highlight {
+    color: #1890ff; /* 设置【】中的内容为红色 */
+    font-weight: bold; /* 加粗显示 */
+  }
+}
 div.wordAudioCanPlay {
   display: flex;
   justify-content: start;
