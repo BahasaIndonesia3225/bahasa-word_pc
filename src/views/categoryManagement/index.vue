@@ -33,7 +33,7 @@
           <span>{{ authorityToName(scope.row.authority) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="total" label="数量"></el-table-column>
+      <el-table-column prop="number" label="数量"></el-table-column>
       <el-table-column width="140" label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="handleEditItem(scope.row)">编辑</el-button>
@@ -98,7 +98,7 @@
 </template>
 <script>
 import Sortable from 'sortablejs'
-import { getCategoryManagement, newCategoryManagement, deleteCategoryManagement, checkCategoryManagement, editCategoryManagement } from "@/api/categoryManagement"
+import { getCategoryManagement, editCategorys, newCategoryManagement, deleteCategoryManagement, checkCategoryManagement, editCategoryManagement } from "@/api/categoryManagement"
 import mixin from '@/views/mixin'
 export default {
   mixins: [mixin],
@@ -150,8 +150,11 @@ export default {
         handle: ".allowDrag",//设置操作区域
         onEnd: evt => {
           const { oldIndex, newIndex } = evt;
-          const targetRow = this.tableData.splice(evt.oldIndex, 1)[0];
-          this.tableData.splice(evt.newIndex, 0, targetRow);
+          const { id } = this.tableData[oldIndex];
+          const params = [{ id, sort: newIndex }]
+          editCategorys(params).then((res) => {
+            this.initTable();
+          })
         }
       });
     },

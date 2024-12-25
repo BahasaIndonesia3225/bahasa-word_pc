@@ -22,7 +22,11 @@
         </el-select>
         <el-button type="primary" @click="handleSearch">查询</el-button>
       </div>
-      <el-button type="primary" @click="handleNewItem">新增</el-button>
+      <div class="operateForm">
+        <el-button type="primary" @click="handleNewItem">新增</el-button>
+        <el-button type="primary" @click="handleExportUser">导出用户</el-button>
+        <el-button type="primary" @click="handleExportTpl">下载模版</el-button>
+      </div>
     </div>
     <el-table
       stripe
@@ -257,6 +261,14 @@ export default {
           message: '已取消删除'
         });
       });
+    },
+    handleExportUser() {
+      const params = {};
+      this.download('system/userAdmin/export', params, `用户列表.xlsx`)
+    },
+    handleExportTpl() {
+      const params = {};
+      this.download('/system/userAdmin/importTemplate', params, `用户模版.xlsx`)
     }
   }
 }
@@ -287,6 +299,11 @@ div.userManagement {
       .el-button {
         margin-left: 14px;
       }
+    }
+    div.operateForm {
+      display: flex;
+      justify-content: start;
+      align-items: center;
     }
   }
 }

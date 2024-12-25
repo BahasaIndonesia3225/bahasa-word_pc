@@ -20,9 +20,34 @@
             :value="item.id">
           </el-option>
         </el-select>
+        <div class="name">空字段值</div>
+        <el-select
+          v-model="searchParams.key"
+          placeholder="请选择空字段"
+          clearable>
+          <el-option label="用法解释" value="sentence"></el-option>
+          <el-option label="中文含义" value="chinese"></el-option>
+          <el-option label="断句" value="type"></el-option>
+        </el-select>
         <el-button type="primary" @click="handleSearch">查询</el-button>
       </div>
-      <el-button type="primary" @click="handleNewItem">新增</el-button>
+      <div class="operateForm">
+        <el-button type="primary" @click="handleNewItem">新增</el-button>
+        <el-upload
+          ref="fileUpload"
+          :action="uploadFileUrl"
+          :headers="headers"
+          :before-upload="handleBeforeUpload"
+          :on-error="handleUploadError"
+          :on-success="handleUploadSuccess">
+          <el-button
+            style="margin: 0 14px"
+            type="primary">
+            导入单词
+          </el-button>
+        </el-upload>
+        <el-button type="primary" @click="handleDownloadTpl">下载模版</el-button>
+      </div>
     </div>
     <el-table
       stripe
@@ -171,6 +196,7 @@ import {
 } from "@/api/wordManagement"
 import mixin from '@/views/mixin'
 import {getCategoryManagement} from '@/api/categoryManagement'
+import {getToken} from "@/utils/auth";
 
 export default {
   components: {CanAudio, PlayAudio},
@@ -182,6 +208,7 @@ export default {
       searchParams: {
         remark: "",
         categoryId: "",
+        key: "",
         pageNum: 1,
         pageSize: 100,
       },
@@ -214,7 +241,12 @@ export default {
         type: [
           { required: true, message: '请输入断句', trigger: 'blur' },
         ],
-      }
+      },
+      //上传相关
+      fileType: [ "xls", "xlsx" ],
+      fileSize: 5,
+      uploadFileUrl: "http://damin.portuguesa.cn/prod-api/system/word/importData", // 上传文件服务器地址
+      headers: { Authorization: "Bearer " + getToken() },
     }
   },
   created() {
@@ -371,6 +403,44 @@ export default {
         type: 'success',
         message: '复制成功!'
       });
+    },
+    // 上传前校检格式和大小
+    handleBeforeUpload(file) {
+      // 校检文件类型
+      const fileName = file.name.split('.');
+      const fileExt = fileName[fileName.length - 1];
+      const isTypeOk = this.fileType.indexOf(fileExt) >= 0;
+      if (!isTypeOk) {
+        this.$modal.msgError(`文件格式不正确, 请上传${this.fileType.join("/")}格式文件!`);
+        return false;
+      }
+      // 校检文件大小
+      const isLt = file.size / 1024 / 1024 < this.fileSize;
+      if (!isLt) {
+        this.$modal.msgError(`上传文件大小不能超过 ${this.fileSize} MB!`);
+        return false;
+      }
+      this.$modal.loading("正在上传文件，请稍候...");
+      return true;
+    },
+    // 上传失败
+    handleUploadError(err) {
+      this.$modal.msgError("上传文件失败，请重试");
+      this.$modal.closeLoading()
+    },
+    // 上传成功回调
+    handleUploadSuccess(res, file) {
+      if (res.code === 200) {
+        this.$modal.closeLoading();
+      } else {
+        this.$modal.closeLoading();
+        this.$modal.msgError(res.msg);
+        this.$refs.fileUpload.handleRemove(file);
+      }
+    },
+    handleDownloadTpl() {
+      const params = {};
+      this.download('/system/word/importTemplate', params, `单词模版.xlsx`)
     }
   }
 }
@@ -422,6 +492,11 @@ div.wordManagement {
       .el-button {
         margin-left: 14px;
       }
+    }
+    div.operateForm {
+      display: flex;
+      justify-content: start;
+      align-items: center;
     }
   }
 }

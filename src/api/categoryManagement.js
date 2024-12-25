@@ -9,6 +9,15 @@ export const getCategoryManagement = (params) => {
   })
 }
 
+// 类别排序
+export const editCategorys = (params) => {
+  return request({
+    url: '/system/category/editCategorys',
+    method: 'put',
+    data: params
+  })
+}
+
 // 类别新增
 export const newCategoryManagement = (params) => {
   return request({
