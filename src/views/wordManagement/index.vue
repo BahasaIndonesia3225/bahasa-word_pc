@@ -151,7 +151,7 @@
           <el-input
             style="width: 100%"
             type="textarea"
-            :rows="3"
+            :rows="5"
             v-model="wordInfoForm.sentence">
           </el-input>
         </el-form-item>
