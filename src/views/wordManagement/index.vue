@@ -56,26 +56,27 @@
       :data="tableData"
       style="width: 100%">
       <el-table-column
-        width="150"
-        prop="remark"
-        label="单词">
+        width="200"
+        label="基单词信息">
+        <template slot-scope="scope">
+          <div class="infoItem">
+            <span>单词：</span>
+            <span>{{scope.row.remark}}</span>
+          </div>
+          <div class="infoItem">
+            <span>断句：</span>
+            <span>{{scope.row.type}}</span>
+          </div>
+          <div class="infoItem">
+            <span>中文含义：</span>
+            <span>{{scope.row.chinese}}</span>
+          </div>
+        </template>
       </el-table-column>
-      <el-table-column
-        width="150"
-        prop="type"
-        label="断句">
-      </el-table-column>
-      <el-table-column
-        width="150"
-        prop="chinese"
-        label="中文含义">
-      </el-table-column>
-      <el-table-column width="250" label="类别">
+      <el-table-column width="120" label="类别">
         <template slot-scope="scope">
           <div v-for="item in setCategoryName(scope.row.categoryId)">
-            <el-tag
-              type="info"
-              size="mini">
+            <el-tag size="mini">
               {{ item }}
             </el-tag>
           </div>
@@ -86,13 +87,9 @@
           <div v-html="setSentence(scope.row.sentence)"></div>
         </template>
       </el-table-column>
-      <el-table-column width="80" label="能否播放">
-        <template slot-scope="scope">
-          <play-audio :key="scope.row.id" :src="scope.row.soundRecording"/>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" width="140">
         <template slot-scope="scope">
+          <play-audio :key="scope.row.id" :src="scope.row.soundRecording"/>
           <el-button type="text" size="small" @click="handleEditItem(scope.row)">编辑</el-button>
           <el-button type="text" size="small" @click="handleDeleteItem(scope.row)">删除</el-button>
         </template>
@@ -255,7 +252,9 @@ export default {
   },
   methods: {
     setSentence(txt) {
-      const txt1 = txt.replace(/(【例句\d*】)/g, "<br>$1");
+      let txt1 = txt.replace(/(【例句\d*】)/g, "<br>$1");
+      txt1 = txt1.replace(/(【欧葡例句\d*】)/g, "<br>$1");
+      txt1 = txt1.replace(/(【巴葡例句\d*】)/g, "<br>$1");
       return txt1.replace(/(【.*?】)/g, '<span class="highlight">$1</span>')
     },
     setAudioUrl(name) {
@@ -446,6 +445,14 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.infoItem {
+  height: 20px;
+  line-height: 20px;
+  >span:first-child {
+    font-weight: bold;
+    color: #1890ff;
+  }
+}
 ::v-deep {
   .highlight {
     color: #1890ff; /* 设置【】中的内容为红色 */
