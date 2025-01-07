@@ -73,7 +73,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column width="120" label="类别">
+      <el-table-column width="200" label="类别">
         <template slot-scope="scope">
           <div v-for="item in setCategoryName(scope.row.categoryId)">
             <el-tag size="mini">
