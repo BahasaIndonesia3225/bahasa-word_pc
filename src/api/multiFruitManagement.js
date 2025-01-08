@@ -1,5 +1,14 @@
 import request from '@/utils/request'
 
+// 用户管理
+export const getStageAdminList = (params) => {
+  return request({
+    url: '/stageIosAdmin/list',
+    method: 'get',
+    params
+  })
+}
+
 // 阶段列表
 export const getStageAdmin = (params) => {
   return request({

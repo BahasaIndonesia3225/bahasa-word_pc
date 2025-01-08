@@ -19,32 +19,61 @@
       height="100%"
       size="mini"
       :data="tableData"
+      row-key="id"
+      border
+      :default-expand-all="true"
+      :tree-props="{children: 'children'}"
       style="width: 100%">
+      <el-table-column
+        prop="name"
+        label="阶段/关卡名称">
+        <template slot-scope="scope">
+          <span v-if="scope.row.parent === 0">
+            {{scope.row.name}}
+          </span>
+          <el-button
+            v-else
+            @click="handleCheckDetail(scope.row)"
+            type="text">
+            {{scope.row.name}}
+          </el-button>
+        </template>
+      </el-table-column>
       <el-table-column
         width="100"
         prop="stage"
-        label="所属顺序">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="阶段名称">
+        label="顺序">
         <template slot-scope="scope">
-          <el-button @click="handleCheckDetail(scope.row)" type="text">{{scope.row.name}}</el-button>
+          <el-tag
+            effect="dark"
+            size="mini"
+            v-if="scope.row.parent === 0">
+            {{scope.row.stage}}
+          </el-tag>
+          <el-tag
+            v-else
+            effect="dark"
+            size="mini"
+            type="info">
+            {{scope.row.stage}}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="introduce"
-        label="阶段描述">
+        label="阶段/关卡描述">
       </el-table-column>
       <el-table-column
         prop="pic"
-        label="阶段主图">
+        label="主图">
         <template slot-scope="scope">
           <el-image
+            v-if="scope.row.parent === 0"
             style="width: 48px; height: 48px"
             :src="scope.row.pic"
             :preview-src-list="[scope.row.pic]"
-            fit="contain"></el-image>
+            fit="contain">
+          </el-image>
         </template>
       </el-table-column>
       <el-table-column
@@ -76,7 +105,7 @@
       </el-pagination>
     </div>
     <el-dialog
-      :title="wordInfoForm.id ? '编辑阶段' : '新增阶段'"
+      :title="wordInfoForm.id ? `编辑${dialogTitle}` : '新增阶段/关卡'"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       width="600px">
@@ -85,26 +114,52 @@
         :model="wordInfoForm"
         :rules="wordInfoRules"
         label-width="80px">
-        <el-form-item label="阶段名称" prop="name">
+        <el-form-item label="类型" prop="type">
+          <el-radio-group
+            v-removeAriaHidden
+            v-model="wordInfoForm.type"
+            @change="handleChangeType">
+            <el-radio :label="0">阶段</el-radio>
+            <el-radio :label="1">关卡</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item
+          v-if="wordInfoForm.type === 1"
+          label="所属阶段"
+          prop="parent">
+          <el-select
+            style="width: 100%"
+            v-model="wordInfoForm.parent"
+            placeholder="请选择所属阶段"
+            clearable>
+            <el-option
+              v-for="item in tableData"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="名称" prop="name">
           <el-input style="width: 100%" v-model="wordInfoForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="阶段描述" prop="introduce">
+        <el-form-item label="描述" prop="introduce">
           <el-input
             style="width: 100%"
             type="textarea"
             :rows="3"
             :maxlength="100"
             show-word-limit
-            placeholder="请输入阶段描述"
+            placeholder="请输入描述"
             v-model="wordInfoForm.introduce">
           </el-input>
         </el-form-item>
-        <el-form-item label="阶段主图" prop="pic">
+        <el-form-item label="主图" prop="pic">
           <el-input style="width: 100%" v-model="wordInfoForm.pic"></el-input>
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="所属阶段" prop="stage">
+            <el-form-item label="顺序" prop="stage">
               <el-input-number
                 style="width: 100%"
                 v-model="wordInfoForm.stage"
@@ -132,8 +187,7 @@
   </div>
 </template>
 <script>
-import { getStageAdmin, newStageAdmin, deleteStageAdmin, editStageAdmin, checkStageAdmin } from "@/api/multiFruitManagement"
-import {getToken} from "@/utils/auth";
+import { getStageAdmin, newStageAdmin, deleteStageAdmin, editStageAdmin } from "@/api/multiFruitManagement"
 
 export default {
   data() {
@@ -145,26 +199,35 @@ export default {
       },
       //新增相关
       dialogVisible: false,
+      dialogTitle: "",
       wordInfoForm: {
         id: "",
         name: "",
         introduce: "",
         pic: "",
         stage: "",
-        colour: ""
+        colour: "",
+        parent: "",
+        type: 0
       },
       wordInfoRules: {
+        type: [
+          { required: true, message: '请选择类型', trigger: 'blur' },
+        ],
+        parent: [
+          { required: true, message: '请选择所属阶段', trigger: 'blur' },
+        ],
         name: [
-          { required: true, message: '请输入阶段名称', trigger: 'blur' },
+          { required: true, message: '请输入名称', trigger: 'blur' },
         ],
         introduce: [
-          { required: true, message: '请输入阶段描述', trigger: 'blur' },
+          { required: true, message: '请输入描述', trigger: 'blur' },
         ],
         pic: [
-          { required: true, message: '请输入阶段主图', trigger: 'blur' },
+          { required: true, message: '请输入主图', trigger: 'blur' },
         ],
         stage: [
-          { required: true, message: '请输入所属阶段', trigger: 'blur' },
+          { required: true, message: '请输入阶段', trigger: 'blur' },
         ],
         colour: [
           { required: true, message: '请输入主题色', trigger: 'blur' },
@@ -226,44 +289,53 @@ export default {
         introduce: "",
         pic: "",
         stage: "",
-        colour: ""
+        colour: "",
+        parent: "",
+        type: 0
       }
     },
     handleEditItem(data) {
-      const { id, name, introduce, pic, stage, colour } = data;
-      this.wordInfoForm = { id, name, introduce, pic, stage, colour };
+      const { id, name, introduce, pic, stage, colour, parent } = data;
+      const type = parent === 0 ? 0 : 1
+      this.wordInfoForm = { id, name, introduce, pic, stage, colour, parent, type};
+      this.dialogTitle = parent === 0 ? '阶段' : '关卡';
       this.dialogVisible = true;
+    },
+    handleChangeType() {
+      this.wordInfoForm.parent = "";
+      this.$refs["form"].clearValidate()
     },
     cancelForm() {
       this.$refs["form"].resetFields();
       this.dialogVisible = false;
     },
-    submitForm() {
-      this.$refs["form"].validate((valid) => {
-        if (valid) {
-          if(this.wordInfoForm.id) {
-            const params = { ...this.wordInfoForm };
-            editStageAdmin(params).then(res => {
-              this.cancelForm();
-              this.initTable();
-              this.$message({
-                type: 'success',
-                message: '修改成功!'
-              });
-            })
-          }else {
-            const params = { ...this.wordInfoForm };
-            newStageAdmin(params).then(res => {
-              this.cancelForm();
-              this.initTable();
-              this.$message({
-                type: 'success',
-                message: '新增成功!'
-              });
-            })
-          }
-        }
-      });
+    async submitForm() {
+      if(this.wordInfoForm.type === 0) {
+        await this.$refs["form"].validate();
+      }else {
+        await this.$refs["form"].validateField(['type', 'parent', 'name'])
+      }
+      if(this.wordInfoForm.id) {
+        const params = { ...this.wordInfoForm };
+        editStageAdmin(params).then(res => {
+          this.cancelForm();
+          this.initTable();
+          this.$message({
+            type: 'success',
+            message: '修改成功!'
+          });
+        })
+      }else {
+        const params = { ...this.wordInfoForm };
+        newStageAdmin(params).then(res => {
+          this.cancelForm();
+          this.initTable();
+          this.$message({
+            type: 'success',
+            message: '新增成功!'
+          });
+        })
+      }
     },
     handleCheckDetail(data) {
       const { id } = data;

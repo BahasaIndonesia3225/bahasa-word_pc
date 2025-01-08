@@ -76,7 +76,16 @@ Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+
+Vue.directive('removeAriaHidden', {
+  bind(el, binding) {
+    const ariaEls = el.querySelectorAll('.el-radio__original')
+    ariaEls.forEach((item) => {
+      item.removeAttribute('aria-hidden')
+    })
+  }
+})
 
 new Vue({
   el: '#app',
