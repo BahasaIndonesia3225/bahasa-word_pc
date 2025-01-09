@@ -43,4 +43,21 @@ export const editWordManagement = (params) => {
   })
 }
 
+// 录音失效单词列表
+export const getErrorWordList = (params) => {
+  return request({
+    url: '/system/err/list',
+    method: 'get',
+    params
+  })
+}
+
+// 录音失效单词列表删除
+export const deleteErrorWordList = (id) => {
+  return request({
+    url: '/system/err/' + id,
+    method: 'delete',
+  })
+}
+
 
