@@ -79,12 +79,6 @@
       <el-table-column
         prop="colour"
         label="主题色">
-        <template slot-scope="scope">
-          <div
-            class="colourCard"
-            :style="{background: scope.row.colour}">
-          </div>
-        </template>
       </el-table-column>
       <el-table-column label="操作" width="140">
         <template slot-scope="scope">
@@ -171,10 +165,18 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="主题色" prop="colour">
-              <el-color-picker
+              <el-select
                 style="width: 100%"
-                v-model="wordInfoForm.colour">
-              </el-color-picker>
+                v-model="wordInfoForm.colour"
+                placeholder="请选择主题色"
+                clearable>
+                <el-option
+                  v-for="item in themeColorList"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -191,6 +193,7 @@ import { getStageAdmin, newStageAdmin, deleteStageAdmin, editStageAdmin } from "
 
 export default {
   data() {
+    const themeColorList = ["blue", "green", "orange", "red", "purple"];
     return {
       tableData: [],
       total: 0,
@@ -198,6 +201,7 @@ export default {
         name: ""
       },
       //新增相关
+      themeColorList,
       dialogVisible: false,
       dialogTitle: "",
       wordInfoForm: {
@@ -230,7 +234,7 @@ export default {
           { required: true, message: '请输入阶段', trigger: 'blur' },
         ],
         colour: [
-          { required: true, message: '请输入主题色', trigger: 'blur' },
+          { required: true, message: '请选择主题色', trigger: 'blur' },
         ],
       },
     }
