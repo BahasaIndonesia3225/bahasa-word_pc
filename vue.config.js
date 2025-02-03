@@ -34,8 +34,7 @@ module.exports = {
     open: true,
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        // target: `http://damin.bahasaindo.cn/prod-api`,
-        target: 'http://damin.portuguesa.cn/prod-api',
+        target: `http://damin.bahasaindo.cn/prod-api`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
