@@ -263,7 +263,7 @@ export default {
         name = name.replace(" ", "_");
       }
       name = name.toLowerCase()
-      return 'http://taioassets.oss-cn-beijing.aliyuncs.com/Audios/' + name + '.mp3'
+      return 'http://taioassets.oss-cn-beijing.aliyuncs.com/AudiosPor/' + name + '.mp3'
     },
     setCategoryName(categoryId) {
       let names = [];

@@ -7,7 +7,7 @@ function resolve(dir) {
 
 const CompressionPlugin = require('compression-webpack-plugin')
 
-const name = process.env.VUE_APP_TITLE || '东东印尼语后台管理' // 网页标题
+const name = process.env.VUE_APP_TITLE || '东东葡萄牙语后台管理' // 网页标题
 
 const port = process.env.port || process.env.npm_config_port || 8888 // 端口
 
@@ -34,7 +34,6 @@ module.exports = {
     open: true,
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        // target: `http://damin.bahasaindo.cn/prod-api`,
         target: 'http://damin.portuguesa.cn/prod-api',
         changeOrigin: true,
         pathRewrite: {
