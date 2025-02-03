@@ -42,9 +42,19 @@
           <span>{{setLoginDate(scope.row.loginDate)}}</span>
         </template>
       </el-table-column>
-            <el-table-column label="用户类型">
+      <el-table-column label="用户类型">
         <template slot-scope="scope">
           <span>{{setUserName(scope.row.userType)}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="多邻果关卡">
+        <template slot-scope="scope">
+          <span>{{ (scope.row.params.iosStage && scope.row.params.iosStage.hasOwnProperty('node')) ?  scope.row.params.iosStage.node : '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="多邻果阶段">
+        <template slot-scope="scope">
+          <span>{{ (scope.row.params.iosStage && scope.row.params.iosStage.hasOwnProperty('stage')) ? scope.row.params.iosStage.stage : '-' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="140">
