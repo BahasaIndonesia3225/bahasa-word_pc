@@ -198,7 +198,9 @@ export default {
       tableData: [],
       total: 0,
       searchParams: {
-        name: ""
+        name: "",
+        pageNum: 1,
+        pageSize: 100,
       },
       //新增相关
       themeColorList,
