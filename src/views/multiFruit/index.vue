@@ -21,9 +21,14 @@
       :data="tableData"
       row-key="id"
       border
-      :default-expand-all="true"
+      :default-expand-all="false"
       :tree-props="{children: 'children'}"
       style="width: 100%">
+      <el-table-column
+        width="80"
+        label="序号"
+        prop="index">
+      </el-table-column>
       <el-table-column
         prop="name"
         label="阶段/关卡名称">
@@ -248,7 +253,9 @@ export default {
     initTable() {
       getStageAdmin(this.searchParams).then(res => {
         const { total, rows } = res;
-        this.tableData = rows;
+        this.tableData = rows.map((item, index) => {
+          return { ...item, index: index + 1 }
+        });
         this.total = total;
       })
     },
